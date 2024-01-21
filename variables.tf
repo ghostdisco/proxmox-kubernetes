@@ -88,6 +88,7 @@ variable "internal_net_subnet_cidr" {
 variable "ssh_private_key" {
   type        = string
   description = "SSH private key in base64, will be used by Terraform client to connect to the VM after provisioning"
+  sensitive   = true
 }
 
 variable "ssh_public_keys" {

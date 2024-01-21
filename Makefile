@@ -1,3 +1,9 @@
+set-args:
+	./scripts/set_args.sh
+
+setup:
+	./scripts/setup_dev_environment.sh
+
 fmt: 
 	terraform fmt --recursive
 
@@ -19,4 +25,4 @@ destroy:
 cluster: test
 	terraform apply -var-file="example.tfvars"
 
-.PHONY: fmt fmt-check init test deploy destroy
+.PHONY: fmt fmt-check init test deploy destroy setup set-args

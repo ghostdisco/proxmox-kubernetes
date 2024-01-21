@@ -1,5 +1,8 @@
 ## About the project
 
+Used in the walkthrough [here](https://www.khanhph.com/install-proxmox-kubernetes).
+Also downloaded under './guide'.
+
 This project allows you to create a Kubernetes cluster on [Proxmox VE](https://pve.proxmox.com/wiki/Main_Page) using [Terraform](https://www.terraform.io/) and [Kubespray](https://github.com/kubernetes-sigs/kubespray) in a declarative manner.
 
 ![Proxmox Kubernetes clusters](proxmox-kubernetes.png)
@@ -34,21 +37,27 @@ Follow these steps to use the project:
     $ git clone https://github.com/khanh-ph/proxmox-kubernetes.git
     ```
 
-2. Open the `example.tfvars` file in a text editor and update all the mandatory variables with your own values.
+2. Create a `.env` file and populate it with the environment variables provided in `.req_env`.
 
-3. Initialize the Terraform working directory.
+3. Run `make setup` or `./scripts/setup_dev_environment.sh` on machine running this deployment to ensure all pre-reqs are met.
+
+4. Run `./scripts/setup_proxmox_host.sh` on proxmox host to setup networking, VM template, SSH key pair, and Bastion host.
+
+?. Open the `example.tfvars` file in a text editor and update all the mandatory variables with your own values.
+
+?. Initialize the Terraform working directory.
 
     ```sh
     $ terraform init
     ```
 
-4. Generate an execution plan and review the output to ensure that the planned changes align with your expectations.
+?. Generate an execution plan and review the output to ensure that the planned changes align with your expectations.
 
     ```sh
     $ terraform plan -var-file="example.tfvars"
     ```
 
-5. If you're satisfied with the plan and ready to apply the changes. Run the following command:
+?. If you're satisfied with the plan and ready to apply the changes. Run the following command:
 
     ```sh
     $ terraform apply -var-file="example.tfvars"

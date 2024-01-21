@@ -1,0 +1,4 @@
+GH_USERNAME
+PRINT_APP_VERSIONS
+TF_VAR_pm_api_token_secret
+TF_VAR_ssh_private_key
