@@ -147,7 +147,7 @@ if [ ! $device_config_matches ] ; then
     fi
 
     # append config
-    sudo cat "${device_config_file}" >> $file
+    sudo cat "${device_config_file}" | sudo tee -a "$file" > /dev/null
     echo "device configuration added to network"
 
     # validate configuration added to file
