@@ -53,12 +53,12 @@ do
     value=$(echo $value | xargs)
 
     # set local variables and export them
-    export "$key=$value"
+    export $key="$value"
     # echo "$key=$value"
 done < "${ROOT_DIR}/.env"
 
 # verify required environment variables exist
-missing_key=false
+missing_key=''
 while read -r key
 do
     if [[ $key == \#* ]]; then
@@ -105,21 +105,21 @@ file="/etc/network/interfaces"
 backup_file="${file}.original_0"
 device_config_file="${SCRIPTS_DIR}/files/interfaces.part"
 device_name='vmbr1'
-device_exists=false
-device_config_matches=false
+device_exists=''
+device_config_matches=''
 
 # determine if current configuration is desired
 if [ -f "$file" ] ; then
     if grep -Fxq $device_name $file ; then
-        device_exists=true
+        device_exists='true'
         if grep -Fxqf "$device_config_file" $file ; then
-            device_config_matches=true
+            device_config_matches='true'
         fi
     fi
 fi
 
 # exit if the device exists but the config doesn't match our device config file
-if [ -f "$file" && $device_exists && ! $device_config_matches ] ; then
+if [ -f "$file" ] && [ $device_exists ] && [ ! $device_config_matches ] ; then
     echo "config for ${device_name} doesn't match!"
     echo "compare ${file} content with ${device_config_file}"
     echo "exiting..."
@@ -173,19 +173,12 @@ fi
 
 # checks whether the template exists
 function qm_item_exists {
-    if $2 ; then
-        if sudo qm list | grep "$1" | grep "$2" &> /dev/null ; then 
-            return true
-        else
-            return false
-        fi
+    if [ $# -ge 2 ] ; then
+        sudo qm list | grep "$1" | grep "$2" &> /dev/null
     else
-        if sudo qm list | grep "$1" &> /dev/null ; then 
-            return true
-        else
-            return false
-        fi
+        sudo qm list | grep "$1" &> /dev/null
     fi
+    return $?
 }
 
 # create template only if it doesn't exist or if FORCE_TEMPLATE_CREATION
@@ -234,7 +227,6 @@ fi
 function test_ssh_to_bastion {
     timeout=120
     start_time=$(date +%s)
-    success=false
 
     while true; do
         ssh -o BatchMode=yes -i "${ssh_keyfile_path}" -n -q "ubuntu@$BASTION_HOST_IP" exit
@@ -242,22 +234,19 @@ function test_ssh_to_bastion {
 
         # check status
         if [ $exit_status -eq 0 ]; then
-            success=true
             echo "ssh connection to $BASTION_HOST_IP successful"
-            break
+            return $exit_status
         fi
 
         # check timeout
         current_time=$(date +%s)
         if [ $((current_time - start_time)) -ge $timeout ]; then
             echo "timed out testing sshconnection to $BASTION_HOST_IP"
-            break
+            return $exit_status
         fi
 
         sleep 5
     done
-
-    return $success
 }
 
 
@@ -285,8 +274,7 @@ if ! qm_item_exists $VM_TEMPLATE_NAME $VM_TEMPLATE_ID ; then
 
     # validate we can connect
     echo "testing connection to ubuntu@$BASTION_HOST_IP using $ssh_keyfile_path..."
-    result=$(test_ssh_to_bastion)
-    if ! $result ; then
+    if ! test_ssh_to_bastion ; then
         echo "failed to reach bastion host, exiting..."
         exit 1
     fi
