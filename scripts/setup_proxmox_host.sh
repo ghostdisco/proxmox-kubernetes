@@ -275,11 +275,11 @@ function test_ssh {
 
 
 # only create if vm doesn't exist
-if ! qm_item_exists $VM_TEMPLATE_NAME $VM_TEMPLATE_ID ; then
+if ! qm_item_exists $BASTION_HOST_NAME $BASTION_HOST_ID ; then
 
     # clone template
     sudo qm clone $VM_TEMPLATE_ID $BASTION_HOST_ID --name $BASTION_HOST_NAME --full true
-    if ! qm_item_exists $VM_TEMPLATE_NAME $VM_TEMPLATE_ID ; then
+    if ! qm_item_exists $BASTION_HOST_NAME $BASTION_HOST_ID ; then
         echo "failed to create bastion vm, exiting..."
         exit 1
     fi
