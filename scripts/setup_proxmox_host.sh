@@ -128,7 +128,9 @@ device_config_matches=''
 
 # determine if current configuration is desired
 if [ -f "$file" ] ; then
+    echo "file exists: \"$file\""
     if grep -Fq $device_name $file ; then
+        echo "device \"$device_name\" already defined in file"
         device_exists=true
 
         # check if the device configuration matches   
@@ -140,6 +142,9 @@ if [ -f "$file" ] ; then
             fi
         done < "$device_config_file"
     fi
+else
+    echo "creating \"$file\""
+    sudo touch "$file"
 fi
 
 # exit if the device exists but the config doesn't match our device config file
@@ -155,6 +160,8 @@ if [ ! $device_config_matches ] ; then
 
     # backup the existing file
     if [ -f "$file" ] ; then
+
+        echo "backing up \"$file\""
 
         # new file name
         suffix=0
@@ -190,6 +197,8 @@ if [ ! $device_config_matches ] ; then
     fi
 fi
 
+echo "network configuration complete"
+
 #endregion
 
 
@@ -207,6 +216,8 @@ function qm_item_exists {
 
 # create template only if it doesn't exist or if FORCE_TEMPLATE_CREATION
 if ! qm_item_exists $VM_TEMPLATE_NAME $VM_TEMPLATE_ID || [ $FORCE_TEMPLATE_CREATION ] ; then
+
+    echo "creating vm template"
 
     # verify presence of script to create VM template
     template_script_url="https://raw.githubusercontent.com/${GH_USERNAME}/proxmox-scripts/master/create-vm-template/script.sh"
@@ -229,6 +240,8 @@ if ! qm_item_exists $VM_TEMPLATE_NAME $VM_TEMPLATE_ID ; then
     exit 1
 fi
 
+echo "vm template creation complete"
+
 #endregion
 
 
@@ -237,11 +250,14 @@ fi
 # generate key if needed
 ssh_keyfile_path="${SSH_KEY_DIR}/${SSH_KEYFILE_NAME}"
 if [ ! -f "${ssh_keyfile_path}" ] ; then
+    echo "creating ssh key"
     ssh-keygen -t rsa -b 4096 -f "${ssh_keyfile_path}" -C "k8s-admin@cluster.local" -N ""
 fi
 if [ ! -f "${ssh_keyfile_path}" ] ; then
     echo "failed to generate ssh keys, exiting..."
 fi
+
+echo "ssh key generation complete"
 
 #endregion
 
@@ -253,7 +269,7 @@ function test_ssh {
     start_time=$(date +%s)
 
     while true; do
-        ssh -o BatchMode=yes -i "${ssh_keyfile_path}" -n -q "$1" exit
+        ssh -o BatchMode=yes -o StrictHostKeyChecking=no -i "${ssh_keyfile_path}" -n -q "$1" exit
         exit_status=$?
 
         # check status
@@ -276,6 +292,8 @@ function test_ssh {
 
 # only create if vm doesn't exist
 if ! qm_item_exists $BASTION_HOST_NAME $BASTION_HOST_ID ; then
+
+    echo "creating bastion host"
 
     # clone template
     sudo qm clone $VM_TEMPLATE_ID $BASTION_HOST_ID --name $BASTION_HOST_NAME --full true
@@ -304,4 +322,8 @@ if ! qm_item_exists $BASTION_HOST_NAME $BASTION_HOST_ID ; then
     fi
 fi
 
+echo "bastion host created"
+
 #endregion
+
+echo "---===   Proxmox Host Setup Completed Successfully   ===---"
