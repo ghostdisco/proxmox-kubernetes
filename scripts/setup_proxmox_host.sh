@@ -16,7 +16,6 @@ if ! sudo qm list >/dev/null 2>&1 ; then
     echo "if this is a proxmox host, be sure qm is in this user's PATH"
     exit 1
 fi
-#todo: add check for user to exit early if not running on proxmox server host
 
 
 #region Environment Variables ##
@@ -44,6 +43,7 @@ SCRIPTS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT_DIR=$( abspath "$SCRIPTS_DIR/.." )
 KUBESPRAY_DIR="${ROOT_DIR}/kubespray"
 MODULES_DIR="${ROOT_DIR}/modules"
+SSH_KEY_DIR=$( abspath ~/.ssh)
 echo "ROOT_DIR=${ROOT_DIR}"
 
 # set environment arguments
@@ -235,7 +235,7 @@ fi
 #region Generate SSH Key Pair
 
 # generate key if needed
-ssh_keyfile_path="~/.ssh/${SSH_KEYFILE_NAME}"
+ssh_keyfile_path="${SSH_KEY_DIR}/${SSH_KEYFILE_NAME}"
 if [ ! -f "${ssh_keyfile_path}" ] ; then
     ssh-keygen -t rsa -b 4096 -f "${ssh_keyfile_path}" -C "k8s-admin@cluster.local" -N ""
 fi
@@ -248,24 +248,24 @@ fi
 
 #region Setup Bastion Host
 
-function test_ssh_to_bastion {
+function test_ssh {
     timeout=120
     start_time=$(date +%s)
 
     while true; do
-        ssh -o BatchMode=yes -i "${ssh_keyfile_path}" -n -q "ubuntu@$BASTION_HOST_IP" exit
+        ssh -o BatchMode=yes -i "${ssh_keyfile_path}" -n -q "$1" exit
         exit_status=$?
 
         # check status
         if [ $exit_status -eq 0 ]; then
-            echo "ssh connection to $BASTION_HOST_IP successful"
+            echo "ssh connection to $1 successful"
             return $exit_status
         fi
 
         # check timeout
         current_time=$(date +%s)
         if [ $((current_time - start_time)) -ge $timeout ]; then
-            echo "timed out testing sshconnection to $BASTION_HOST_IP"
+            echo "timed out testing ssh connection to $1"
             return $exit_status
         fi
 
@@ -298,7 +298,7 @@ if ! qm_item_exists $VM_TEMPLATE_NAME $VM_TEMPLATE_ID ; then
 
     # validate we can connect
     echo "testing connection to ubuntu@$BASTION_HOST_IP using $ssh_keyfile_path..."
-    if ! test_ssh_to_bastion ; then
+    if ! test_ssh "ubuntu@${BASTION_HOST_IP}" ; then
         echo "failed to reach bastion host, exiting..."
         exit 1
     fi
