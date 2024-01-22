@@ -42,7 +42,7 @@ do
     value=$(echo $value | xargs)
 
     # set local variables and export them
-    export "$key=$value"
+    export $key="$value"
     # echo "$key=$value"
 done < "${ROOT_DIR}/.env"
 
@@ -60,7 +60,7 @@ do
     fi
 done < "${ROOT_DIR}/.req_env"
 
-if $missing_key; then
+if [ $missing_key ]; then
     echo "Ensure you have supplied all above required variables, exiting..."
     exit 1
 fi
@@ -83,7 +83,7 @@ if ! sudo --version >/dev/null 2>&1 ; then
     echo 'failed to install sudo, exiting...'
     exit 1
 fi
-if $PRINT_APP_VERSIONS ; then
+if [ $PRINT_APP_VERSIONS ] ; then
     sudo --version | head -n 1
 fi
 
@@ -99,7 +99,7 @@ if ! brew --version >/dev/null 2>&1 ; then
     echo 'failed to install homebrew, exiting...'
     exit 1
 fi
-if $PRINT_APP_VERSIONS ; then
+if [ $PRINT_APP_VERSIONS ] ; then
     brew --version
 fi
 
@@ -124,7 +124,7 @@ if [ "$(python --version)" != "Python ${REQUIRED_PYTHON_VERSION}" ] ; then
     echo 'failed to install python, exiting...'
     exit 1
 fi
-if $PRINT_APP_VERSIONS ; then
+if [ $PRINT_APP_VERSIONS ] ; then
     python --version
 fi
 
@@ -138,7 +138,7 @@ if ! pip --version >/dev/null 2>&1 ; then
     echo 'failed to install pip, exiting...'
     exit 1
 fi
-if $PRINT_APP_VERSIONS ; then
+if [ $PRINT_APP_VERSIONS ] ; then
     pip --version
 fi
 
@@ -150,7 +150,7 @@ if ! ansible --version >/dev/null 2>&1 ; then
     echo 'failed to install ansible, exiting...'
     exit 1
 fi
-if $PRINT_APP_VERSIONS ; then
+if [ $PRINT_APP_VERSIONS ] ; then
     ansible --version | head -n 1
 fi
 
@@ -162,7 +162,7 @@ if ! terraform --version >/dev/null 2>&1 ; then
     echo 'failed to install terraform, exiting...'
     exit 1
 fi
-if $PRINT_APP_VERSIONS ; then
+if [ $PRINT_APP_VERSIONS ] ; then
     terraform --version | head -n 1
 fi
 

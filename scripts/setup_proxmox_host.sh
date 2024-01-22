@@ -71,7 +71,7 @@ do
     fi
 done < "${ROOT_DIR}/.req_env"
 
-if $missing_key; then
+if [ $missing_key ]; then
     echo "Ensure you have supplied all above required variables, exiting..."
     exit 1
 fi
