@@ -105,7 +105,14 @@ if ! sudo --version >/dev/null 2>&1 ; then
 fi
 
 # utilities
-sudo apt install -qqy curl
+if ! curl --version >/dev/null 2>&1 ; then 
+    echo "installing curl..."
+    sudo apt install -qqy curl
+fi
+if ! curl --version >/dev/null 2>&1 ; then 
+    echo 'failed to install curl, exiting...'
+    exit 1
+fi
 
 #endregion
 
@@ -121,11 +128,17 @@ device_config_matches=''
 
 # determine if current configuration is desired
 if [ -f "$file" ] ; then
-    if grep -Fxq $device_name $file ; then
-        device_exists='true'
-        if grep -Fxqf "$device_config_file" $file ; then
-            device_config_matches='true'
-        fi
+    if grep -Fq $device_name $file ; then
+        device_exists=true
+
+        # check if the device configuration matches   
+        device_config_matches=true     
+        while IFS= read -r line; do
+            if ! grep -Fxqe "$line" "$file"; then
+                device_config_matches=''
+                break
+            fi
+        done < "$device_config_file"
     fi
 fi
 
