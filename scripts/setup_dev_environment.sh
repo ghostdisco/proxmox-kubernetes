@@ -52,7 +52,7 @@ do
 done < "${ROOT_DIR}/.env"
 
 # verify required environment variables exist
-missing_key=false
+missing_key=''
 while read -r key
 do
     if [[ $key == \#* ]]; then
