@@ -58,20 +58,25 @@ do
     key=$(echo $key | xargs)
     value=$(echo $value | xargs)
 
+    # handle boolean
+    if [ "$value" == 'false' ] ; then
+        value=''
+    fi
+
     # set local variables and export them
     export $key="$value"
     # echo "$key=$value"
 done < "${ROOT_DIR}/.env"
 
 # verify required environment variables exist
-missing_key=''
+missing_key=false
 while read -r key
 do
     if [[ $key == \#* ]]; then
         continue
     fi
 
-    if [ -z "${!key}" ]; then
+    if ! [[ -v $key ]]; then
         echo "Missing required variable: ${key}"
         missing_key=true
     fi
