@@ -25,7 +25,7 @@ variable "cluster_domain" {
 }
 
 locals {
-  cluster_name = var.location != null ? "k8s-${var.env_name}-${var.location}-${var.cluster_number}" : "k8s-${var.env_name}-${var.cluster_number}"
+  cluster_name = var.location != null ? "k8s-${var.env_name}-${var.location}-${var.cluster_number}" : "k8s-${var.env_name}"
   cluster_fqdn = "${local.cluster_name}.${var.cluster_domain}"
 }
 

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 
 #region Environment Variables ###
 
@@ -22,10 +20,11 @@ function abspath {
 }
 
 # set directories
-SCRIPTS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-ROOT_DIR=$( abspath "$SCRIPTS_DIR/.." )
-KUBESPRAY_DIR="${ROOT_DIR}/kubespray"
-MODULES_DIR="${ROOT_DIR}/modules"
+export SCRIPTS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+export ROOT_DIR=$( abspath "$SCRIPTS_DIR/.." )
+export KUBESPRAY_DIR="${ROOT_DIR}/kubespray"
+export MODULES_DIR="${ROOT_DIR}/modules"
+export SSH_KEY_DIR=$( abspath ~/.ssh)
 echo "ROOT_DIR=${ROOT_DIR}"
 
 # set environment arguments
@@ -40,34 +39,33 @@ do
     key=$(echo $key | xargs)
     value=$(echo $value | xargs)
 
+    # handle boolean
+    if [ "$value" == 'false' ] ; then
+        value=''
+    fi
+
     # set local variables and export them
-    export "$key=$value"
+    export $key="$value"
     # echo "$key=$value"
 done < "${ROOT_DIR}/.env"
 
 # verify required environment variables exist
-missing_key=false
+missing_key=''
 while read -r key
 do
     if [[ $key == \#* ]]; then
         continue
     fi
 
-    if [ -z "${!key}" ]; then
+    if ! [[ -v $key ]]; then
         echo "Missing required variable: ${key}"
         missing_key=true
     fi
 done < "${ROOT_DIR}/.req_env"
 
-if $missing_key; then
+if [ $missing_key ]; then
     echo "Ensure you have supplied all above required variables, exiting..."
     exit 1
 fi
-
-#endregion
-
-#region Deploy ###
-
-
 
 #endregion

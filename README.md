@@ -34,33 +34,41 @@ Follow these steps to use the project:
 1. Clone the repo:
 
     ```sh
-    $ git clone https://github.com/khanh-ph/proxmox-kubernetes.git
+    git clone https://github.com/khanh-ph/proxmox-kubernetes.git
     ```
 
 2. Create a `.env` file and populate it with the environment variables provided in `.req_env`.
 
 3. Run `make setup` or `./scripts/setup_dev_environment.sh` on machine running this deployment to ensure all pre-reqs are met.
 
-4. Run `./scripts/setup_proxmox_host.sh` on proxmox host to setup networking, VM template, SSH key pair, and Bastion host.
+4. Copy this repo, along with your changes, to the proxmox host if that's not where you've been working. Also copy the .env file.
 
-?. Open the `example.tfvars` file in a text editor and update all the mandatory variables with your own values.
+5. Run `./scripts/setup_proxmox_host.sh` on the proxmox host to setup networking, VM template, SSH key pair, and Bastion host.
 
-?. Initialize the Terraform working directory.
+6. Copy `example.tfvars`, naming it to match the environment (i.e. `dev.tfvars`), then update the values to match the desired outcome.
+
+7. Pull in environment variables for use in plan. 
 
     ```sh
-    $ terraform init
+    source ./scripts/set_vars.sh
     ```
 
-?. Generate an execution plan and review the output to ensure that the planned changes align with your expectations.
+8. Initialize the Terraform working directory.
 
     ```sh
-    $ terraform plan -var-file="example.tfvars"
+    terraform init
     ```
 
-?. If you're satisfied with the plan and ready to apply the changes. Run the following command:
+9. Generate an execution plan and review the output to ensure that the planned changes align with your expectations.
 
     ```sh
-    $ terraform apply -var-file="example.tfvars"
+    terraform plan -var-file="test.tfvars" -out "test_plan"
+    ```
+
+10. If you're satisfied with the plan and ready to apply the changes. Run the following command, specifying your plan name.
+
+    ```sh
+    terraform apply "test_plan"
     ```
 
 ## Terraform configurations
