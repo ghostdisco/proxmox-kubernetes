@@ -10,6 +10,12 @@ BASTION_HOST_IP="172.16.0.49"
 LAN_GW="172.16.0.1"
 
 
+if ! sudo qm list >/dev/null 2>&1 ; then 
+    echo "qm not found!"
+    echo "script must be run on a proxmox host!"
+    echo "if this is a proxmox host, be sure qm is in this user's PATH"
+    exit 1
+fi
 #todo: add check for user to exit early if not running on proxmox server host
 
 
@@ -182,7 +188,7 @@ function qm_item_exists {
 }
 
 # create template only if it doesn't exist or if FORCE_TEMPLATE_CREATION
-if ! qm_item_exists $VM_TEMPLATE_NAME $VM_TEMPLATE_ID || $FORCE_TEMPLATE_CREATION ; then
+if ! qm_item_exists $VM_TEMPLATE_NAME $VM_TEMPLATE_ID || [ $FORCE_TEMPLATE_CREATION ] ; then
 
     # verify presence of script to create VM template
     template_script_url="https://raw.githubusercontent.com/${GH_USERNAME}/proxmox-scripts/master/create-vm-template/script.sh"
@@ -213,7 +219,7 @@ fi
 # generate key if needed
 ssh_keyfile_path="~/.ssh/${SSH_KEYFILE_NAME}"
 if [ ! -f "${ssh_keyfile_path}" ] ; then
-    ssh-keygen -t rsa -b 4096 -f "${ssh_keyfile_path}" -C "k8s-admin@cluster.local" -p ""
+    ssh-keygen -t rsa -b 4096 -f "${ssh_keyfile_path}" -C "k8s-admin@cluster.local" -N ""
 fi
 if [ ! -f "${ssh_keyfile_path}" ] ; then
     echo "failed to generate ssh keys, exiting..."
