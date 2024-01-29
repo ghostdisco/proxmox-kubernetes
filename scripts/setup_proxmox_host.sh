@@ -1,7 +1,7 @@
 #!/bin/bash
 
+#region Local Variables
 
-SSH_KEYFILE_NAME=id_rsa
 VM_TEMPLATE_NAME=ubuntu-2204
 VM_TEMPLATE_ID=9000
 BASTION_USERNAME=ubuntu
@@ -17,6 +17,8 @@ if ! sudo qm list >/dev/null 2>&1 ; then
     echo "if this is a proxmox host, be sure qm is in this user's PATH"
     exit 1
 fi
+
+#endregion
 
 
 #region Environment Variables ###
@@ -356,6 +358,7 @@ fi
 echo "config for bastion connections created"
 
 #endregion
+
 
 #region Create SSH Config for Bastion ###
 
