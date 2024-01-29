@@ -59,6 +59,35 @@ else
     echo "Docker is already installed."
 fi
 
+# python
+if ! python --version >/dev/null 2>&1 && python3 --version >/dev/null 2>&1 ; then 
+    alias python=python3
+fi
+
+# pip
+if ! pip --version >/dev/null 2>&1 ; then 
+    sudo apt install -qqy "python$(python --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)-distutils"
+    wget https://bootstrap.pypa.io/get-pip.py
+    python3 get-pip.py
+fi
+if ! pip --version >/dev/null 2>&1 ; then 
+    echo 'failed to install pip, exiting...'
+    exit 1
+fi
+
+# ansible
+if ! ansible --version >/dev/null 2>&1 ; then 
+    pip install ansible
+fi
+if ! ansible --version >/dev/null 2>&1 ; then 
+    echo 'failed to install ansible, exiting...'
+    exit 1
+fi
+if [ $PRINT_APP_VERSIONS ] ; then
+    ansible --version | head -n 1
+fi
+
+
 mkdir -p $kubespray_data_dir
 rm -rf $kubespray_data_dir/*
 chmod 700 $kubespray_data_dir

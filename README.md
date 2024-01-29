@@ -1,7 +1,7 @@
 ## About the project
 
-Used in the walkthrough [here](https://www.khanhph.com/install-proxmox-kubernetes).
-Also downloaded under './guide'.
+This README and this repo's content has been extended to include all steps used in the original walkthrough: [here](https://www.khanhph.com/install-proxmox-kubernetes).
+The walkthrough has also been downloaded under './guide'.
 
 This project allows you to create a Kubernetes cluster on [Proxmox VE](https://pve.proxmox.com/wiki/Main_Page) using [Terraform](https://www.terraform.io/) and [Kubespray](https://github.com/kubernetes-sigs/kubespray) in a declarative manner.
 
@@ -18,20 +18,11 @@ Ensure the following software versions are installed:
 
 > Kubespray will be set up automatically.
 
-### System requirements
-
-Before proceeding with the setup for Proxmox VE, make sure you have the following components in place:
-
-* Internal network
-* VM template
-* SSH key pair
-* Bastion host
-
 ### Usage
 
 Follow these steps to use the project:
 
-1. Clone the repo:
+1. Clone the repo on a machine with access to the Proxmox API:
 
     ```sh
     git clone https://github.com/khanh-ph/proxmox-kubernetes.git
@@ -41,31 +32,35 @@ Follow these steps to use the project:
 
 3. Run `make setup` or `./scripts/setup_dev_environment.sh` on machine running this deployment to ensure all pre-reqs are met.
 
-4. Copy this repo, along with your changes, to the proxmox host if that's not where you've been working. Also copy the .env file.
+4. Copy this repo, along with your changes, to the proxmox host if that's not where you've been working. Also copy the .env file. For now the `TF_VAR_ssh_public_keys` and `TF_VAR_ssh_private_keys` variables can be empty strings.
 
 5. Run `./scripts/setup_proxmox_host.sh` on the proxmox host to setup networking, VM template, SSH key pair, and Bastion host.
 
-6. Copy `example.tfvars`, naming it to match the environment (i.e. `dev.tfvars`), then update the values to match the desired outcome.
+6. Grab the ssh keys created by the `setup_proxmox_host.sh` script on proxmox host, base64 encode the key files content and store them in the .env file as `TF_VAR_ssh_public_keys` and `TF_VAR_ssh_private_keys`.
 
-7. Pull in environment variables for use in plan. 
+7. If performing the remaining steps on the proxmos host, continue to next step. Otherwise, copy the updated .env file back to the server we ran `setup_dev_environment.sh` script on.
+
+8. Copy `example.tfvars`, naming it to match the environment being built (i.e. `test.tfvars`), then update the values to match the desired outcome.
+
+9. Pull in the environment variables we've been using.
 
     ```sh
     source ./scripts/set_vars.sh
     ```
 
-8. Initialize the Terraform working directory.
+10. Initialize the Terraform working directory.
 
     ```sh
     terraform init
     ```
 
-9. Generate an execution plan and review the output to ensure that the planned changes align with your expectations.
+11. Generate an execution plan and review the output to ensure that the planned changes align with your expectations.
 
     ```sh
     terraform plan -var-file="test.tfvars" -out "test_plan"
     ```
 
-10. If you're satisfied with the plan and ready to apply the changes. Run the following command, specifying your plan name.
+12. If you're satisfied with the plan and ready to apply the changes. Run the following command, specifying your plan name.
 
     ```sh
     terraform apply "test_plan"
