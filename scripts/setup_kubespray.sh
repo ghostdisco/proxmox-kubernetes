@@ -59,32 +59,29 @@ else
     echo "Docker is already installed."
 fi
 
-# python
+# python = python3
 if ! python --version >/dev/null 2>&1 && python3 --version >/dev/null 2>&1 ; then 
-    alias python=python3
+    sudo ln -s /usr/bin/python3 /usr/bin/python
 fi
 
 # pip
-if ! pip --version >/dev/null 2>&1 ; then 
+if ! sudo pip --version >/dev/null 2>&1 ; then 
     sudo apt install -qqy "python$(python --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)-distutils"
     wget https://bootstrap.pypa.io/get-pip.py
-    python3 get-pip.py
+    sudo python3 get-pip.py
 fi
-if ! pip --version >/dev/null 2>&1 ; then 
+if ! sudo pip --version >/dev/null 2>&1 ; then 
     echo 'failed to install pip, exiting...'
     exit 1
 fi
 
 # ansible
-if ! ansible --version >/dev/null 2>&1 ; then 
-    pip install ansible
+if ! sudo ansible --version >/dev/null 2>&1 ; then 
+    sudo pip install ansible
 fi
-if ! ansible --version >/dev/null 2>&1 ; then 
+if ! sudo ansible --version >/dev/null 2>&1 ; then 
     echo 'failed to install ansible, exiting...'
     exit 1
-fi
-if [ $PRINT_APP_VERSIONS ] ; then
-    ansible --version | head -n 1
 fi
 
 
