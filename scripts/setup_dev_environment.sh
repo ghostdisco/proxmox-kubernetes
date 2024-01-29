@@ -119,4 +119,4 @@ fi
 
 #endregion
 
-echo -e "\n\n---===   Dev Environment Setup Completed Successfully   ===---"
+echo -e "\n\n---===   Dev Environment Setup Completed Successfully   ===---\n"
