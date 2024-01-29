@@ -38,7 +38,8 @@ Follow these steps to use the project:
 
 6. Grab the ssh keys created by the `setup_proxmox_host.sh` script on proxmox host, base64 encode the key files content and store them in the .env file as `TF_VAR_ssh_public_keys` and `TF_VAR_ssh_private_keys`. The key file encoded MUST end with an empty line!
 
-7. If performing the remaining steps on the proxmos host, continue to next step. Otherwise, copy the updated .env file back to the server we ran `setup_dev_environment.sh` script on.
+7. If performing the remaining steps on the proxmos host, continue to next step. Otherwise:
+    * Run `update_dev_environment.sh` to get copy down our ssh config from the proxmox server.
 
 8. Copy `example.tfvars`, naming it to match the environment being built (i.e. `test.tfvars`), then update the values to match the desired outcome.
 
