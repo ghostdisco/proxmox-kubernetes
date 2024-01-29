@@ -53,7 +53,7 @@ done < "${ROOT_DIR}/.env"
 missing_key=''
 while read -r key
 do
-    if [[ $key == \#* ]]; then
+    if [[ $key == \#* ]] || [[ -z $key ]]; then
         continue
     fi
 

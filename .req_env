@@ -1,6 +1,36 @@
-GH_USERNAME
+# not required atm
+# GH_TOKEN
+
+# not required atm
+# GH_USERNAME
+
+# create template even if it already exists
 FORCE_TEMPLATE_CREATION
+
+# prints app versions as fyi during dev env setup
 PRINT_APP_VERSIONS
+
+# name of keyfile created on proxmox to be used for connections
+SSH_KEYFILE_NAME
+
+# username used on proxmox host when running `setup_proxmox_host.sh`
+PROXMOX_HOST_USER
+
+# set to 127.0.0.1 if we're running on the proxmox host
+PROXMOX_HOST_IP
+
+# proxmox api token id
+TF_VAR_pm_api_token_id
+
+# proxmox api token secret
 TF_VAR_pm_api_token_secret
+
+# leave empty during `setup_dev_environment.sh`
+# update with public key created by `setup_proxmox_host.sh`, encoded
+# as base64 (ensure the file ends in an empty line when encoding)
 TF_VAR_ssh_public_keys
+
+# leave empty during `setup_dev_environment.sh`
+# update with private key created by `setup_proxmox_host.sh`, encoded
+# as base64 (ensure the file ends in an empty line when encoding)
 TF_VAR_ssh_private_key
