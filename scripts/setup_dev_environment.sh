@@ -1,6 +1,11 @@
 #!/bin/bash
 
+#region Local Variables ###
+
 REQUIRED_PYTHON_VERSION="3.11.1"
+
+#endregion
+
 
 #region Environment Variables ###
 
@@ -11,6 +16,7 @@ if [ $? -ne 0 ] ; then
 fi
 
 #endregion
+
 
 #region Applications ###
 
