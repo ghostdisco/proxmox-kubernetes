@@ -13,6 +13,15 @@ PRINT_APP_VERSIONS
 # name of keyfile created on proxmox to be used for connections
 SSH_KEYFILE_NAME
 
+# username for bastion (default: ubuntu)
+BASTION_USERNAME
+
+# vm name for bastion host (default: bastion)
+BASTION_HOST_NAME
+
+# ip of bastion host
+BASTION_HOST_IP
+
 # username used on proxmox host when running `setup_proxmox_host.sh`
 PROXMOX_HOST_USER
 

@@ -4,10 +4,6 @@
 
 VM_TEMPLATE_NAME=ubuntu-2204
 VM_TEMPLATE_ID=9000
-BASTION_USERNAME=ubuntu
-BASTION_HOST_NAME=bastion
-BASTION_HOST_ID=1049
-BASTION_HOST_IP="172.16.0.49"
 LAN_GW="172.16.0.1"
 
 
@@ -286,6 +282,8 @@ host_identifier="Host ${BASTION_HOST_IP}"
 host_exists=''
 host_config_matches=''
 
+echo "$host_config_content" > /home/${USER}/.ssh/bastion_config
+
 # determine if current configuration is desired
 if [ -f "$file" ] ; then
     echo "file exists: \"$file\""
@@ -360,7 +358,7 @@ echo "config for bastion connections created"
 #endregion
 
 
-#region Create SSH Config for Bastion ###
+#region Trust Bastion Host ###
 
 echo "copying keys to bastion and trusting the bastion host"
 
@@ -377,4 +375,15 @@ echo "connections to bastion should now be trusted"
 
 #endregion
 
-echo -e "\n\n---===   Proxmox Host Setup Completed Successfully   ===---"
+
+#region Update SSH Key Values in .env ###
+
+base64_encoded_public_key=$(base64 -w 0 "${ssh_keyfile_path}.pub")
+base64_encoded_private_key=$(base64 -w 0 "${ssh_keyfile_path}")
+
+sed -i "s/^TF_VAR_ssh_public_keys.*/TF_VAR_ssh_public_keys=\"${base64_encoded_public_key}\"/" "${ROOT_DIR}/.env"
+sed -i "s/^TF_VAR_ssh_private_key.*/TF_VAR_ssh_private_key=\"${base64_encoded_private_key}\"/" "${ROOT_DIR}/.env"
+
+#endregion
+
+echo -e "\n\n---===   Proxmox Host Setup Completed Successfully   ===---\n"
