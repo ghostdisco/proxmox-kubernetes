@@ -4,6 +4,7 @@
 SSH_KEYFILE_NAME=id_rsa
 VM_TEMPLATE_NAME=ubuntu-2204
 VM_TEMPLATE_ID=9000
+BASTION_USERNAME=ubuntu
 BASTION_HOST_NAME=bastion
 BASTION_HOST_ID=1049
 BASTION_HOST_IP="172.16.0.49"
@@ -141,7 +142,7 @@ echo "network configuration complete"
 #endregion
 
 
-#region Prepare VM Template
+#region Prepare VM Template ###
 
 # checks whether the template exists
 function qm_item_exists {
@@ -184,7 +185,7 @@ echo "vm template creation complete"
 #endregion
 
 
-#region Generate SSH Key Pair
+#region Generate SSH Key Pair ###
 
 # generate key if needed
 ssh_keyfile_path="${SSH_KEY_DIR}/${SSH_KEYFILE_NAME}"
@@ -201,7 +202,7 @@ echo "ssh key generation complete"
 #endregion
 
 
-#region Setup Bastion Host
+#region Setup Bastion Host ###
 
 function test_ssh {
     timeout=120
@@ -262,6 +263,114 @@ if ! qm_item_exists $BASTION_HOST_NAME $BASTION_HOST_ID ; then
 fi
 
 echo "bastion host created"
+
+#endregion
+
+
+#region Create SSH Config for Bastion ###
+
+echo "setup config for connections to bastion"
+
+# check if bastion host exists in proxmox's ssh config
+file="/home/${USER}/.ssh/config"
+backup_file="${file}.original_0"
+host_config_content="#BASTION
+Host ${BASTION_HOST_IP}
+   HostName ${BASTION_HOST_IP}
+   PreferredAuthentications publickey
+   User ${BASTION_USERNAME}
+   IdentityFile ${ssh_keyfile_path}"
+host_identifier="Host ${BASTION_HOST_IP}"
+host_exists=''
+host_config_matches=''
+
+# determine if current configuration is desired
+if [ -f "$file" ] ; then
+    echo "file exists: \"$file\""
+    if grep -Fq "$host_identifier" $file >/dev/null 2>&1; then
+        echo "\"$host_identifier\" already defined in file"
+        host_exists=true
+
+        # check if the device configuration matches   
+        host_config_matches=true     
+        while IFS= read -r line; do
+            if ! grep -Fxqe "$line" "$file"; then
+                device_config_matches=''
+                break
+            fi
+        done <<< "$host_config_content"
+    fi
+else
+    echo "creating \"$file\""
+    touch "$file"
+fi
+
+# exit if the host exists but the config doesn't match our device config file
+if [ -f "$file" ] && [ $host_exists ] && [ ! $host_config_matches ] ; then
+    echo "config for ${host_identifier} doesn't match!"
+    echo "compare ${file} content with \$host_config_content in this setup_proxmox_host.sh"
+    echo "exiting..."
+    exit 1
+fi
+
+# handle adding host to ssh config
+if [ ! $host_config_matches ] ; then
+
+    # backup the existing file
+    if [ -f "$file" ] ; then
+
+        echo "backing up \"$file\""
+
+        # new file name
+        suffix=0
+
+        # determine new file name
+        while [ -f "$backup_file" ]; do
+            ((suffix++))
+            backup_file="${file}.original_${suffix}"
+        done
+
+        # copy file
+        sudo cp "$file" "$backup_file"
+        echo "file copied to $backup_file"
+    fi
+
+    # append config
+    sudo echo "${host_config_content}" | sudo tee -a "$file" > /dev/null
+    echo "host configuration added to config"
+
+    # validate configuration added to file
+    host_config_matches=true     
+    while IFS= read -r line; do
+        if ! grep -Fxqe "$line" "$file"; then
+            host_config_matches=''
+            break
+        fi
+    done <<< "$host_config_content"
+    if ! $host_config_matches ; then
+        echo "failed to add device to configuration, exiting..."
+        exit 1
+    fi
+fi
+
+echo "config for bastion connections created"
+
+#endregion
+
+#region Create SSH Config for Bastion ###
+
+echo "copying keys to bastion and trusting the bastion host"
+
+# trust bastion's fingerprint
+if ! ssh-keygen -F ${BASTION_HOST_IP} >/dev/null 2>&1 ; then
+    ssh-keyscan -H ${BASTION_HOST_IP} >/dev/null 2>&1 >> ~/.ssh/known_hosts
+fi
+
+# copy the keys to bastion
+scp ${ssh_keyfile_path} ${BASTION_HOST_IP}:~/.ssh/id_rsa
+scp ${ssh_keyfile_path}.pub ${BASTION_HOST_IP}:~/.ssh/id_rsa.pub
+
+echo "connections to bastion should now be trusted"
 
 #endregion
 

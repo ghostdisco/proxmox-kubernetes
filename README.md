@@ -36,7 +36,7 @@ Follow these steps to use the project:
 
 5. Run `./scripts/setup_proxmox_host.sh` on the proxmox host to setup networking, VM template, SSH key pair, and Bastion host.
 
-6. Grab the ssh keys created by the `setup_proxmox_host.sh` script on proxmox host, base64 encode the key files content and store them in the .env file as `TF_VAR_ssh_public_keys` and `TF_VAR_ssh_private_keys`.
+6. Grab the ssh keys created by the `setup_proxmox_host.sh` script on proxmox host, base64 encode the key files content and store them in the .env file as `TF_VAR_ssh_public_keys` and `TF_VAR_ssh_private_keys`. The key file encoded MUST end with an empty line!
 
 7. If performing the remaining steps on the proxmos host, continue to next step. Otherwise, copy the updated .env file back to the server we ran `setup_dev_environment.sh` script on.
 
