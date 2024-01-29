@@ -30,8 +30,8 @@ echo "ROOT_DIR=${ROOT_DIR}"
 # set environment arguments
 while IFS='=' read -r key value
 do
-    # skip lines that start with #
-    if [[ $key == \#* ]]; then
+    # skip empty lines and ones that start with #
+    if [[ $key == \#* ]] || [[ -z $key ]]; then
         continue
     fi
 
